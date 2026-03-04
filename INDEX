@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DESCENT</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial, Helvetica, sans-serif; }
+body { background:black; color:white; overflow:hidden; }
+
+/* Fullscreen layers */
+.layer {
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:black;
+}
+
+/* Buttons */
+button {
+  padding:15px 45px;
+  border:none;
+  color:white;
+  font-size:1rem;
+  cursor:pointer;
+  transition:0.2s;
+  letter-spacing:1px;
+}
+button:hover { transform:scale(1.05); }
+
+/* --- TYPEWRITER (NO CLIPPING) --- */
+.typewrap {
+  display:inline-block;
+  position:relative;
+}
+.typewrap .typetext{
+  display:inline-block;
+  transform-origin:left center;
+  transform:scaleX(0);
+  filter: blur(0px);
+}
+.typewrap::after{
+  content:"";
+  position:absolute;
+  top:0;
+  right:-6px;
+  width:3px;
+  height:1.1em;
+  background:rgba(255,255,255,0.85);
+  opacity:0;
+}
+
+/* animate reveal */
+.typewrap.type-on .typetext{
+  animation: reveal 1.2s steps(30,end) forwards;
+}
+.typewrap.type-on::after{
+  opacity:1;
+  animation: caretBlink 0.75s step-end infinite;
+}
+
+/* Stop caret after finish */
+.typewrap.type-done::after{
+  opacity:0 !important;
+  animation:none !important;
+}
+
+/* Start button fade */
+.fade-up {
+  opacity:0;
+  transform: translateY(10px);
+  animation: btnFadeIn 0.8s ease forwards;
+}
+
+/* START SCREEN */
+.start-content { text-align:center; }
+.start-title {
+  font-size:2.8rem;
+  letter-spacing:4px;
+  margin-bottom:20px;
+  text-transform:uppercase;
+}
+.start-subtitle {
+  font-size:1.1rem;
+  opacity:0.85;
+  margin-bottom:40px;
+  letter-spacing:2px;
+}
+
+/* INTRO VIDEO */
+#intro video {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* HOP IN SCREEN */
+#hopIn { display:none; }
+.hop-content { text-align:center; }
+.hop-sub {
+  font-size:1rem;
+  letter-spacing:3px;
+  opacity:0.7;
+  margin-bottom:15px;
+  text-transform:uppercase;
+}
+.hop-title {
+  font-size:4rem;
+  letter-spacing:6px;
+  margin-bottom:30px;
+  text-transform:uppercase;
+}
+
+/* MAIN WEBSITE (background edit + buttons) */
+#main {
+  display:none;
+  position:relative;
+  width:100%;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* Background video */
+#mainVideo {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:brightness(0.55) contrast(1.15);
+  z-index:0;
+}
+
+/* Dark overlay for readability */
+#mainOverlay {
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  z-index:1;
+}
+
+/* Content on top */
+#mainContent {
+  position:relative;
+  z-index:2;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:20px;
+}
+
+#mainContent h1 {
+  font-size:3rem;
+  letter-spacing:5px;
+  text-transform:uppercase;
+  margin-bottom:25px;
+}
+
+/* Button row */
+.btn-row { display:flex; gap:14px; }
+
+/* Pump.fun button - red */
+.pump-btn {
+  background:red;
+  color:white;
+  font-weight:700;
+}
+.pump-btn:hover { background:darkred; }
+
+/* X button */
+.x-btn {
+  background:#111;
+  border:1px solid #333;
+  font-weight:700;
+}
+.x-btn:hover { background:#000; }
+
+/* Small helper text */
+.subtext {
+  margin-top:18px;
+  opacity:0.7;
+  letter-spacing:2px;
+  font-size:0.95rem;
+}
+
+/* KEYFRAMES */
+@keyframes reveal {
+  from { transform:scaleX(0); }
+  to   { transform:scaleX(1); }
+}
+
+@keyframes caretBlink {
+  0%, 100% { opacity:1; }
+  50%      { opacity:0; }
+}
+
+@keyframes btnFadeIn {
+  to { opacity:1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="start" class="layer">
+  <div class="start-content">
+    <div id="startTitleWrap" class="typewrap start-title">
+      <span class="typetext">THE WORLD'S BURNING.</span>
+    </div>
+    <br><br>
+    <div id="startSubWrap" class="typewrap start-subtitle">
+      <span class="typetext">Let's All Fly Together.</span>
+    </div>
+    <br><br><br>
+    <button id="startBtn" class="fade-up" style="background:red; animation-delay: 2.8s;" onclick="startVideo()">START DESCENT</button>
+  </div>
+</div>
+
+<!-- INTRO VIDEO -->
+<div id="intro" class="layer" style="display:none;">
+  <video id="introVideo" playsinline>
+    <source src="video/video1.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- HOP IN SCREEN -->
+<div id="hopIn" class="layer">
+  <div class="hop-content">
+    <div id="hopSubWrap" class="typewrap hop-sub">
+      <span class="typetext">Your Journey Starts Here</span>
+    </div>
+    <br><br>
+    <div id="hopTitleWrap" class="typewrap hop-title">
+      <span class="typetext">Hop In</span>
+    </div>
+    <br><br>
+    <button id="enterBtn" class="fade-up" style="background:red; animation-delay: 2.4s;" onclick="enterSite()">ENTER</button>
+  </div>
+</div>
+
+<!-- MAIN WEBSITE -->
+<div id="main">
+  <video id="mainVideo" autoplay muted loop playsinline>
+    <source src="video/video2.mp4" type="video/mp4">
+  </video>
+
+  <div id="mainOverlay"></div>
+
+  <div id="mainContent">
+    <h1>TAKE TO THE SKY</h1>
+
+    <div class="btn-row">
+      <button class="pump-btn" onclick="window.open('#','_blank')">PUMP.FUN</button>
+      <button class="x-btn" onclick="window.open('#','_blank')">X</button>
+    </div>
+
+    <div class="subtext">Links coming soon.</div>
+  </div>
+</div>
+
+<!-- Placeholder audio -->
+<audio id="enterAudio" preload="auto">
+  <source src="audio/enter.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const start = document.getElementById("start");
+const intro = document.getElementById("intro");
+const introVideo = document.getElementById("introVideo");
+const hopIn = document.getElementById("hopIn");
+const main = document.getElementById("main");
+
+const enterAudio = document.getElementById("enterAudio");
+
+// Type wrappers
+const startTitleWrap = document.getElementById("startTitleWrap");
+const startSubWrap   = document.getElementById("startSubWrap");
+const hopSubWrap     = document.getElementById("hopSubWrap");
+const hopTitleWrap   = document.getElementById("hopTitleWrap");
+
+// Start typing sequence immediately
+startTitleWrap.classList.add("type-on");
+setTimeout(() => {
+  startTitleWrap.classList.add("type-done");
+  startSubWrap.classList.add("type-on");
+}, 1300);
+
+setTimeout(() => {
+  startSubWrap.classList.add("type-done");
+}, 2600);
+
+function startVideo() {
+  start.style.display = "none";
+  intro.style.display = "flex";
+  introVideo.play();
+}
+
+introVideo.addEventListener("ended", () => {
+  intro.style.display = "none";
+  hopIn.style.display = "flex";
+
+  // Reset hop animations cleanly each time
+  hopSubWrap.classList.remove("type-on","type-done");
+  hopTitleWrap.classList.remove("type-on","type-done");
+
+  // Start hop typing sequence
+  hopSubWrap.classList.add("type-on");
+  setTimeout(() => {
+    hopSubWrap.classList.add("type-done");
+    hopTitleWrap.classList.add("type-on");
+  }, 1200);
+
+  setTimeout(() => {
+    hopTitleWrap.classList.add("type-done");
+  }, 2400);
+});
+
+function enterSite() {
+  // Play audio on click
+  try {
+    enterAudio.currentTime = 0;
+    enterAudio.play();
+  } catch (e) {}
+
+  hopIn.style.display = "none";
+  main.style.display = "block";
+  document.body.style.overflow = "hidden";
+}
+</script>
+
+</body>
+</html>
